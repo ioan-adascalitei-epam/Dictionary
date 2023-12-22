@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -316,14 +317,14 @@ fun NoInternetErrorView(
     onRetry: () -> Unit = {}
 ) {
 
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.fillMaxSize()
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.BottomCenter
     ) {
         GenericErrorView(
             icon = painterResource(id = R.drawable.ic_no_internet),
-            errorMsg = stringResource(id = R.string.no_internet)
+            errorMsg = stringResource(id = R.string.no_internet),
+            modifier = modifier
         )
         Button(onClick = { onRetry() }) {
             Text(text = stringResource(id = R.string.retry))
