@@ -68,7 +68,6 @@ class MainActivity : ComponentActivity() {
                             onWordChange = viewModel::updateWord,
                             onSearchClick = {
                                 viewModel.handleUserInteraction(UserInteraction.Search)
-                                Log.v("test_s", "icon click passed")
                             }
                         )
 

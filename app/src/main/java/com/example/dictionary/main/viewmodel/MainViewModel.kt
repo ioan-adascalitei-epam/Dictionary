@@ -36,7 +36,6 @@ class MainViewModel @Inject constructor(
         _uiState.value = UiState.Loading
         when (event) {
             is UserInteraction.Search -> {
-                Log.v("user_interaction", "Search")
                 viewModelScope.launch {
                     when(val wordDefinition = getWordDefinitionsUseCase.getWordDefinitions(word)) {
                         is Resource.Success -> {
@@ -54,7 +53,6 @@ class MainViewModel @Inject constructor(
             }
 
             is UserInteraction.Listen -> {
-                Log.v("user_interaction", "Listen")
             }
         }
     }
