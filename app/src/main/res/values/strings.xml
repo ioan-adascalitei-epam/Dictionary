@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Dictionary</string>
+    <string name="word_to_define_label">Type an word…</string>
+    <string name="search_content_description">Search image</string>
+    <string name="play_content_description">Play button</string>
+    <string name="audio_msg">Word audio pronunciation</string>
+    <string name="part_of_speech">Part of speech %s</string>
+    <string name="error_icon_description">Error icon</string>
+    <string name="no_internet">Internet has stopped working. Check it and try again!</string>
+    <string name="retry">Retry</string>
+</resources>
