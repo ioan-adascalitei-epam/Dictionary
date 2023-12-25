@@ -1,13 +1,12 @@
 package com.example.dictionary.main.viewmodel
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.dictionary.data.model.ErrorInfo
 import com.example.dictionary.domain.usecase.GetWordDefinitionsUseCase
+import com.example.dictionary.domain.usecase.PlayAudioUseCase
 import com.example.dictionary.main.state.UiState
 import com.example.dictionary.main.state.UserInteraction
 import com.example.dictionary.util.Resource
@@ -19,7 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val getWordDefinitionsUseCase: GetWordDefinitionsUseCase
+    private val getWordDefinitionsUseCase: GetWordDefinitionsUseCase,
+    private val playAudioUseCase: PlayAudioUseCase
 ) : ViewModel() {
 
     var word by mutableStateOf("")
@@ -33,11 +33,11 @@ class MainViewModel @Inject constructor(
     val uiState: StateFlow<UiState> = _uiState
 
     fun handleUserInteraction(event: UserInteraction) {
-        _uiState.value = UiState.Loading
         when (event) {
             is UserInteraction.Search -> {
+                _uiState.value = UiState.Loading
                 viewModelScope.launch {
-                    when(val wordDefinition = getWordDefinitionsUseCase.getWordDefinitions(word)) {
+                    when (val wordDefinition = getWordDefinitionsUseCase.getWordDefinitions(word)) {
                         is Resource.Success -> {
                             _uiState.value = UiState.Success(
                                 wordDefinition.info.audioPath,
@@ -45,6 +45,7 @@ class MainViewModel @Inject constructor(
                                 wordDefinition.info.origin.orEmpty()
                             )
                         }
+
                         is Resource.Error -> {
                             _uiState.value = UiState.Error(wordDefinition.errorInfo!!)
                         }
@@ -53,6 +54,7 @@ class MainViewModel @Inject constructor(
             }
 
             is UserInteraction.Listen -> {
+                playAudioUseCase.playAudio((_uiState.value as? UiState.Success)?.audioPath.orEmpty())
             }
         }
     }
