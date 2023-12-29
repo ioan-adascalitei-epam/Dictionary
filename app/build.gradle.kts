@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
 
-        buildConfigField("String", "BASE_URL", "\"https://api.dictionaryapi.dev/api/v2/entries/en/\"")
+        buildConfigField("String", "BASE_URL", "\"https://api.dictionaryapi.dev/api/\"")
 
         applicationId = "com.example.dictionary"
         minSdk = 24
@@ -66,6 +66,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
 
     //Retrofit
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")

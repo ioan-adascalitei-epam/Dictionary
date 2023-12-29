@@ -1,8 +1,10 @@
 package com.example.dictionary.di
 
 import com.example.dictionary.BuildConfig
-import com.example.dictionary.data.api.DictionaryApi
-import com.example.dictionary.data.repository.DictionaryRepositoryImpl
+import com.example.dictionary.data.datasource.DictionaryDataSource
+import com.example.dictionary.data.datasource.remote.RemoteDataSourceImpl
+import com.example.dictionary.data.datasource.remote.api.DictionaryApi
+import com.example.dictionary.data.datasource.repository.DictionaryRepositoryImpl
 import com.example.dictionary.domain.DictionaryRepository
 import com.example.dictionary.domain.usecase.GetWordDefinitionsUseCase
 import com.example.dictionary.domain.usecase.impl.GetWordDefinitionsUseCaseImpl
@@ -33,8 +35,19 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideDictionaryRepository(api: DictionaryApi): DictionaryRepository =
-        DictionaryRepositoryImpl(api)
+    fun provideRemoteDS(api: DictionaryApi): DictionaryDataSource = RemoteDataSourceImpl(api)
+
+ /*   @Singleton
+    @Provides
+    fun provideLocalDS(): DictionaryDataSource = LocalDataSourceImpl()
+*/
+    @Singleton
+    @Provides
+    fun provideDictionaryRepository(
+     localDS: DictionaryDataSource,
+     remoteDs: DictionaryDataSource
+    ): DictionaryRepository =
+        DictionaryRepositoryImpl(localDS, remoteDs)
 
     @Singleton
     @Provides

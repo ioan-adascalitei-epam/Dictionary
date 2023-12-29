@@ -1,0 +1,30 @@
+package com.example.dictionary.data.datasource.repository
+
+import com.example.dictionary.data.datasource.DictionaryDataSource
+import com.example.dictionary.domain.DictionaryRepository
+import com.example.dictionary.domain.model.WordDetailsModel
+import com.example.dictionary.util.Result
+import javax.inject.Inject
+
+class DictionaryRepositoryImpl @Inject constructor(
+    private val localDS: DictionaryDataSource,
+    private val remoteDS: DictionaryDataSource,
+
+    ) : DictionaryRepository {
+
+    override suspend fun getWordDefinitions(word: String): Result<WordDetailsModel> =
+        when (val response = remoteDS.getWordDefinitions(word)) {
+            is Result.Success -> {
+                Result.Success(
+                    WordDetailsModel(
+                        word,
+                        response.info.first().meanings,
+                        response.info.first().origin,
+                        response.info.first().phonetics.first().audio
+                    )
+                )
+            }
+
+            is Result.Error -> Result.Error(response.errorInfo)
+        }
+}
