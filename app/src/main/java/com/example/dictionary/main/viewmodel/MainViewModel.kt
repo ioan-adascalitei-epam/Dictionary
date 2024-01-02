@@ -3,8 +3,11 @@ package com.example.dictionary.main.viewmodel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.dictionary.R
+import com.example.dictionary.data.model.ErrorInfo
 import com.example.dictionary.domain.usecase.GetWordDefinitionsUseCase
 import com.example.dictionary.domain.usecase.PlayAudioUseCase
 import com.example.dictionary.main.state.UiState
@@ -54,7 +57,10 @@ class MainViewModel @Inject constructor(
             }
 
             is UserInteraction.Listen -> {
-                playAudioUseCase.playAudio((_uiState.value as? UiState.Success)?.audioPath.orEmpty())
+                playAudioUseCase.playAudio((_uiState.value as? UiState.Success)?.audioPath.orEmpty()) {
+                    _uiState.value =
+                        UiState.Error(ErrorInfo.AudioPlayError())
+                }
             }
         }
     }

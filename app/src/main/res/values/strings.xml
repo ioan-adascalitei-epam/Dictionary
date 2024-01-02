@@ -8,4 +8,5 @@
     <string name="error_icon_description">Error icon</string>
     <string name="no_internet">Internet has stopped working. Check it and try again!</string>
     <string name="retry">Retry</string>
+    <string name="audio_play_error">The audio file could not be played!</string>
 </resources>

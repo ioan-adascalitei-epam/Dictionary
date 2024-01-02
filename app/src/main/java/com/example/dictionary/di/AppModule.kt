@@ -49,8 +49,7 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideAudioWrapper(@ApplicationContext context: Context): AudioWrapper =
-        AudioWrapper(context)
+    fun provideAudioWrapper() = AudioWrapper()
 
     @Singleton
     @Provides

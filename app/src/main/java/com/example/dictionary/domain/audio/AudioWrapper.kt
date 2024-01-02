@@ -1,30 +1,31 @@
 package com.example.dictionary.domain.audio
 
-import android.app.Application
-import android.content.Context
-import androidx.media3.common.MediaItem
-import androidx.media3.common.Player
-import androidx.media3.common.Player.STATE_ENDED
-import androidx.media3.exoplayer.ExoPlayer
+import android.media.AudioAttributes
+import android.media.MediaPlayer
 
-class AudioWrapper(private val context: Context) {
+class AudioWrapper {
 
-    private val player = ExoPlayer.Builder(context).build()
-
-    init {
-        player.addListener(object : Player.Listener {
-            override fun onIsPlayingChanged(isPlaying: Boolean) {
-                if (isPlaying.not() && player.playbackState == STATE_ENDED) {
-                    player.release()
-                }
+    fun playAudio(audioPath: String, onError: () -> Unit) {
+        MediaPlayer().apply {
+            setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .build()
+            )
+            setDataSource(audioPath)
+            prepareAsync()
+            setOnPreparedListener {
+                start()
             }
-        })
-    }
-
-    fun playAudio(audioPath: String) {
-        val mediaItem = MediaItem.fromUri(audioPath)
-        player.setMediaItem(mediaItem)
-        player.prepare()
-        player.play()
+            setOnCompletionListener {
+                release()
+            }
+            setOnErrorListener { _, _, _ ->
+                onError()
+                release()
+                false
+            }
+        }
     }
 }
