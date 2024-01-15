@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -41,14 +40,14 @@ fun DictionaryScreen(viewModel: MainViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     DictionaryScreenComponent(
-        state = state.state,
+        state = state,
         events = viewModel::handleUserInteraction
     )
 }
 
 @Composable
 fun DictionaryScreenComponent(
-    state: UiState,
+    state: DictionaryState,
     events: (UserInteraction) -> Unit
 ) {
     DictionaryTheme {
@@ -60,18 +59,22 @@ fun DictionaryScreenComponent(
             Column(Modifier.padding(20.dp)) {
                 WordToDefine(
                     modifier = Modifier,
+                    word = state.word,
+                    onWordUpdate = {
+                        events(UserInteraction.WordUpdate(it))
+                    },
                     onSearchClick = {
                         events(UserInteraction.Search(it))
                     }
                 )
 
-                when (state) {
+                when (state.uiState) {
                     is UiState.Success -> {
-                        DictionaryScreenSuccess(successState = state, events = events)
+                        DictionaryScreenSuccess(successState = state.uiState, events = events)
                     }
 
                     is UiState.Error -> {
-                        DictionaryScreenError(state = state, events = events)
+                        DictionaryScreenError(state = state.uiState, events = events)
                     }
 
                     UiState.Loading -> {

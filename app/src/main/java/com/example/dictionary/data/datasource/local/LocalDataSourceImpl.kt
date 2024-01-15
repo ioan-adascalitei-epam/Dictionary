@@ -2,7 +2,6 @@ package com.example.dictionary.data.datasource.local
 
 import android.util.Log
 import com.example.dictionary.data.datasource.DictionaryDataSource
-import com.example.dictionary.data.datasource.local.dao.WordsDao
 import com.example.dictionary.data.datasource.local.entity.DefinitionEntity
 import com.example.dictionary.data.datasource.local.entity.MeaningEntity
 import com.example.dictionary.data.datasource.local.entity.PhoneticEntity
@@ -17,21 +16,27 @@ import com.example.dictionary.util.Result
 import javax.inject.Inject
 
 @LocalDS
-class LocalDataSourceImpl @Inject constructor(private val db: WordsDatabase) :
+class LocalDataSourceImpl @Inject constructor(
+    private val db: WordsDatabase,
+    private val entityMapper: EntityMapper
+) :
     DictionaryDataSource {
 
     private val wordDao = db.wordsDao()
     private val meaningsDao = db.meaningDao()
     private val definitionDao = db.definitionDao()
     private val phoneticDao = db.phoneticsDao()
+
     override suspend fun getWordDefinitions(word: String): Result<List<WordDefinitionsResponse>> {
         val wordEntity = wordDao.getWord(word)
         val meanings = meaningsDao.getWordMeanings(word)
         val definitions = definitionDao.getWordDefinition(word)
         val phonetics = phoneticDao.getWordPhonetics(word)
-        if(wordEntity.isEmpty()) {
+
+        if (wordEntity.isEmpty()) {
             return Result.Error(ErrorInfo.NoInternet("No internet connection, no results found!"))
         }
+
         val wordDefinitionsResponse = WordDefinitionsResponse(
             meanings = meanings.map { meaning ->
                 MeaningResponse(
@@ -47,48 +52,21 @@ class LocalDataSourceImpl @Inject constructor(private val db: WordsDatabase) :
                         } ?: emptyList()
                 )
             },
-            origin = wordEntity.first().origin,
-            phonetic = wordEntity.first().phonetic,
+            origin = wordEntity.firstOrNull()?.origin,
+            phonetic = wordEntity.firstOrNull()?.phonetic.orEmpty(),
             phonetics = phonetics.map { PhoneticResponse(it.audio, it.text) },
             word = word
         )
         return Result.Success(listOf(wordDefinitionsResponse))
     }
 
-    override suspend fun saveWordDefinition(wordDefinition: WordDefinitionsResponse) {
-        val wordEntity = WordDefinitionEntity(
-            word = wordDefinition.word,
-            origin = wordDefinition.origin,
-            phonetic = wordDefinition.phonetic
-        )
-        val phoneticsEntity = wordDefinition.phonetics.map {
-            PhoneticEntity(
-                word = wordDefinition.word,
-                audio = it.audio,
-                text = it.text
-            )
-        }
-        val meaningsEntity = wordDefinition.meanings.map {
-            MeaningEntity(
-                word = wordEntity.word,
-                partOfSpeech = it.partOfSpeech
-            )
-        }
-        val definitionsEntity = mutableListOf<DefinitionEntity>()
-        wordDefinition.meanings.forEach { meaning ->
-            Log.v("test_tag", meaning.toString())
-            val definitions = meaning.definitions.map { def ->
-                DefinitionEntity(
-                    word = wordEntity.word,
-                    partOfSpeech = meaning.partOfSpeech,
-                    definition = def.definition,
-                    antonyms = def.antonyms,
-                    synonyms = def.synonyms,
-                    example = def.example
-                )
-            }
-            definitionsEntity.addAll(definitions)
-        }
+    override suspend fun saveWordDefinition(wordDefinition: WordDefinitionsResponse?) {
+        if (wordDefinition == null) return
+
+        val wordEntity = entityMapper.toWordEntity(wordDefinition)
+        val phoneticsEntity = entityMapper.toPhoneticEntity(wordDefinition)
+        val meaningsEntity = entityMapper.toMeaningEntity(wordDefinition)
+        val definitionsEntity = entityMapper.toDefinitionEntity(wordDefinition)
 
         wordDao.insertWordDefinition(wordEntity)
         phoneticsEntity.forEach { phoneticDao.insertPhonetic(it) }

@@ -12,25 +12,29 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val getWordDefinitionsUseCase: GetWordDefinitionsUseCase
+    private val getWordDefinitionsUseCase: GetWordDefinitionsUseCase,
+    private val meaningMapper: MeaningStateMapper
 ) : ViewModel() {
 
     private var _uiState = MutableStateFlow(DictionaryState())
     val uiState: StateFlow<DictionaryState> = _uiState
 
     fun handleUserInteraction(event: UserInteraction) {
-        _uiState.value = _uiState.value.copy(state = UiState.Loading)
         when (event) {
             is UserInteraction.Search -> {
-                _uiState.value = _uiState.value.copy(word = event.word)
+                _uiState.value = _uiState.value.copy(word = event.word, uiState = UiState.Loading)
                 searchWord(event.word)
             }
 
             is UserInteraction.Listen -> {
             }
 
-            UserInteraction.Retry -> {
+            is UserInteraction.Retry -> {
                 searchWord(_uiState.value.word)
+            }
+
+            is UserInteraction.WordUpdate -> {
+                _uiState.value = _uiState.value.copy(word = event.word)
             }
         }
     }
@@ -41,9 +45,11 @@ class MainViewModel @Inject constructor(
                 getWordDefinitionsUseCase.getWordDefinitions(word)) {
                 is Result.Success -> {
                     _uiState.value = _uiState.value.copy(
-                        state = UiState.Success(
+                        uiState = UiState.Success(
                             wordDefinition.info.audioPath,
-                            wordDefinition.info.meanings,
+                            wordDefinition.info.meanings.map { meaningResponse ->
+                                meaningMapper.toMeaningState(meaningResponse)
+                            },
                             wordDefinition.info.origin.orEmpty()
                         )
                     )
@@ -51,7 +57,7 @@ class MainViewModel @Inject constructor(
 
                 is Result.Error -> {
                     _uiState.value =
-                        _uiState.value.copy(state = UiState.Error(wordDefinition.errorInfo!!))
+                        _uiState.value.copy(uiState = UiState.Error(wordDefinition.errorInfo!!))
                 }
             }
         }

@@ -14,12 +14,11 @@ class RemoteDataSourceImpl @Inject constructor(
     override suspend fun getWordDefinitions(word: String): Result<List<WordDefinitionsResponse>> =
         apiCall { api.getWordDefinitions(word) }
 
-    override suspend fun saveWordDefinition(wordDefinition: WordDefinitionsResponse) {
+    override suspend fun saveWordDefinition(wordDefinition: WordDefinitionsResponse?) {
         throw NotImplementedError("No need for remote implementation")
     }
 
     override suspend fun deleteWordDefinitions(words: List<String>) {
         throw NotImplementedError("No need for remote implementation")
     }
-
 }

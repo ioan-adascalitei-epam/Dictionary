@@ -34,21 +34,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.dictionary.R
 import com.example.dictionary.data.model.DefinitionResponse
+import com.example.dictionary.main.DefinitionState
 import com.example.dictionary.ui.theme.DictionaryTheme
 
 @Composable
 fun WordToDefine(
     modifier: Modifier = Modifier,
+    word: String = "",
+    onWordUpdate: (word: String) -> Unit = {},
     onSearchClick: (String) -> Unit = {}
 ) {
-
-    var word by rememberSaveable {
-        mutableStateOf("")
-    }
-
     TextField(
         value = word,
-        onValueChange = { input -> word = input },
+        onValueChange = { input -> onWordUpdate(input) },
         label = { Text(text = stringResource(id = R.string.word_to_define_label)) },
         singleLine = true,
         modifier = modifier
@@ -57,7 +55,7 @@ fun WordToDefine(
         trailingIcon = {
             Icon(painter = painterResource(id = R.drawable.ic_search),
                 contentDescription = stringResource(id = R.string.search_content_description),
-                modifier.clickable { onSearchClick(word) })
+                modifier = modifier.clickable { onSearchClick(word) })
         }
     )
 }
@@ -67,15 +65,15 @@ fun AudioPath(
     modifier: Modifier = Modifier,
     onPlayClicked: () -> Unit = {}
 ) {
-    Card(modifier.fillMaxWidth()) {
+    Card(modifier = modifier.fillMaxWidth()) {
         Row(
-            Modifier.padding(4.dp),
+            modifier = Modifier.padding(4.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(painter = painterResource(id = R.drawable.ic_play),
                 contentDescription = stringResource(id = R.string.play_content_description),
-                modifier
+                modifier = modifier
                     .clickable { onPlayClicked() }
                     .size(60.dp)
                     .scale(0.8f)
@@ -94,8 +92,8 @@ fun CardInfo(
     keyName: String,
     value: String
 ) {
-    Card(modifier.fillMaxWidth()) {
-        Column(modifier.padding(8.dp)) {
+    Card(modifier = modifier.fillMaxWidth()) {
+        Column(modifier = modifier.padding(8.dp)) {
             Text(
                 text = keyName,
                 style = MaterialTheme.typography.bodyMedium,
@@ -116,17 +114,17 @@ fun Definition(
     synonyms: List<String>?,
     antonyms: List<String>?
 ) {
-    Card(modifier.fillMaxWidth()) {
-        Column(modifier.padding(8.dp)) {
+    Card(modifier = modifier.fillMaxWidth()) {
+        Column(modifier = modifier.padding(8.dp)) {
             CardInfo(keyName = "Definition", value = definition)
             if (example.isNullOrEmpty().not()) {
-                CardInfo(keyName = "Example", value = example!!)
+                CardInfo(keyName = "Example", value = example.orEmpty())
             }
             if (synonyms.isNullOrEmpty().not()) {
-                CardInfo(keyName = "Synonyms", value = synonyms!!.joinToString { "$it\t" })
+                CardInfo(keyName = "Synonyms", value = synonyms.orEmpty().joinToString { "$it\t" })
             }
             if (antonyms.isNullOrEmpty().not()) {
-                CardInfo(keyName = "Antonyms", value = antonyms!!.joinToString { "$it\t" })
+                CardInfo(keyName = "Antonyms", value = antonyms.orEmpty().joinToString { "$it\t" })
             }
         }
     }
@@ -136,9 +134,9 @@ fun Definition(
 fun Meaning(
     modifier: Modifier = Modifier,
     partOfSpeech: String = "",
-    definitions: List<DefinitionResponse> = emptyList()
+    definitions: List<DefinitionState> = emptyList()
 ) {
-    Card(modifier.fillMaxWidth()) {
+    Card(modifier = modifier.fillMaxWidth()) {
         Column {
             Text(
                 text = stringResource(id = R.string.part_of_speech, partOfSpeech),

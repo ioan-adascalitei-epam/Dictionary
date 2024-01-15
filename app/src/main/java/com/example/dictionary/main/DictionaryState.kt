@@ -1,17 +1,16 @@
 package com.example.dictionary.main
 
 import com.example.dictionary.domain.model.ErrorInfo
-import com.example.dictionary.data.model.MeaningResponse
 
 data class DictionaryState(
-    val state: UiState = UiState.Empty,
+    val uiState: UiState = UiState.Empty,
     val word: String = ""
 )
 
 sealed class UiState {
     data class Success(
         val audioPath: String? = null,
-        val meanings: List<MeaningResponse> = emptyList(),
+        val meanings: List<MeaningState> = emptyList(),
         val origin: String = ""
     ): UiState()
 
@@ -23,5 +22,17 @@ sealed class UiState {
 
     data object Empty : UiState()
 }
+
+data class MeaningState(
+    val partOfSpeech: String,
+    val definitions: List<DefinitionState>
+)
+
+data class DefinitionState(
+    val antonyms: List<String>?,
+    val definition: String,
+    val example: String?,
+    val synonyms: List<String>?
+)
 
 
