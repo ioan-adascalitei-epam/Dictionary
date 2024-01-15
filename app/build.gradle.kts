@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
 
-        buildConfigField("String", "BASE_URL", "\"https://api.dictionaryapi.dev/api/v2/entries/en/\"")
+        buildConfigField("String", "BASE_URL", "\"https://api.dictionaryapi.dev/api/\"")
 
         applicationId = "com.example.dictionary"
         minSdk = 24
@@ -22,6 +22,13 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
+        }
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments["room.schemaLocation"] =
+                    "$projectDir/schemas"
+            }
         }
 
     }
@@ -66,6 +73,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
 
     //Retrofit
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
@@ -78,6 +86,7 @@ dependencies {
     //Room
     implementation ("androidx.room:room-runtime:2.6.1")
     annotationProcessor ("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
     kapt ("androidx.room:room-compiler:2.6.1")
 
     //Datastore
